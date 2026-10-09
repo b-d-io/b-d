@@ -9,7 +9,6 @@ Everything here was measured on real hardware while shipping live-caption apps (
 | Glasses | Text canvas for apps | Access |
 |---|---|---|
 | Even Realities G2 | Yes — 576×288, ~27 px lines | Community BLE protocol; official Even Hub SDK |
-| SmartXY AR99 (JOVE L1) | Yes — 36 half-width columns × 6 rows, ~250 bytes per update | Vendor iOS SDK |
 | RayNeo iO | No — firmware keeps the canvas closed | — |
 | Meta Ray-Ban Display | Yes — via Meta's display API | Official Wearables Device Access Toolkit |
 
