@@ -12,11 +12,33 @@ Everything here was measured on real hardware while shipping live-caption apps (
 | RayNeo iO | No — firmware keeps the canvas closed | — |
 | Meta Ray-Ban Display | Yes — via Meta's display API | Official Wearables Device Access Toolkit |
 
-## Coming here
+## `@b-d-io/glasses`
 
-- `core/` — lens layout (glyph widths, line breaking, one-line scrolling) and device adapters
-- `sim/` — a lens simulator: render text exactly as a given pair of glasses would
-- `mcp/` — an MCP server so an AI assistant can preview and send text to your glasses
+Lay out, scroll and preview text exactly as smart glasses draw it. Even G2 first.
+
+- **Firmware-exact line breaking** for Even G2, on top of Even's own [`@evenrealities/pretext`](https://www.npmjs.com/package/@evenrealities/pretext) metrics. The test suite checks every line width against pretext.
+- **Captions as a stream** — the lens moves down one line at a time, sentences keep their rows when a translation is shorter, and words still being spoken are marked `› … …`.
+- **Preview from the command line** — an SVG or PNG of the lens, with each line drawn at the width the glasses give it. Handy for AI coding assistants: they can check their own output without the glasses.
+
+```bash
+git clone https://github.com/b-d-io/b-d && cd b-d && npm install && npm run build
+node dist/src/cli.js preview --guides -o lens.png "Your results look good." --live "Any questi"
+```
+
+```ts
+import { evenG2, textWidth, lineCapacity, stream, step } from "@b-d-io/glasses";
+
+const o = { wrap: evenG2.wrap, width: textWidth(evenG2) };
+const lines = stream([{ id: 1, text: "Your results look good." }], "Any questi", o);
+const lens = step(lines, undefined, undefined, 0, { capacity: lineCapacity(evenG2) - 1, resting: 6 });
+console.log(lens.lines); // what to send to the glasses, line by line
+```
+
+## Coming next
+
+- A browser lens simulator on [b-d.io](https://b-d.io)
+- An MCP server so an AI assistant can preview text on a lens (and, through the phone app, send it to your glasses)
+- More devices
 
 ## Contributing a device
 

@@ -1,0 +1,40 @@
+{
+  "name": "@b-d-io/glasses",
+  "version": "0.1.0",
+  "description": "Lay out, scroll and preview text exactly as smart glasses draw it. Even G2 first.",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "b-d": "dist/src/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test 'dist/test/*.test.js'"
+  },
+  "keywords": [
+    "smart-glasses",
+    "even-realities",
+    "g2",
+    "captions",
+    "lens",
+    "ble"
+  ],
+  "homepage": "https://b-d.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/b-d-io/b-d.git"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@evenrealities/pretext": "^0.1.4",
+    "@resvg/resvg-js": "^2.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}
