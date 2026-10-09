@@ -17,7 +17,7 @@ Everything here was measured on real hardware while shipping live-caption apps (
 Lay out, scroll and preview text exactly as smart glasses draw it. Even G2 first.
 
 - **Firmware-exact line breaking** for Even G2, on top of Even's own [`@evenrealities/pretext`](https://www.npmjs.com/package/@evenrealities/pretext) metrics. The test suite checks every line width against pretext.
-- **Captions as a stream** — the lens moves down one line at a time, sentences keep their rows when a translation is shorter, and words still being spoken are marked `› … …`.
+- **Captions as a stream** — the lens moves down one line at a time, sentences keep their rows when a translation is shorter, and words still being spoken are marked `› …`.
 - **Preview from the command line** — an SVG or PNG of the lens, with each line drawn at the width the glasses give it. Handy for AI coding assistants: they can check their own output without the glasses.
 
 ```bash
@@ -34,10 +34,26 @@ const lens = step(lines, undefined, undefined, 0, { capacity: lineCapacity(evenG
 console.log(lens.lines); // what to send to the glasses, line by line
 ```
 
+## Simulator
+
+Try it in the browser: **[b-d.io/sim](https://b-d.io/sim/)** — type captions, see the lens.
+
+## MCP server
+
+Let an AI assistant lay out text and look at the lens before anything reaches real glasses.
+
+```bash
+npm run build
+claude mcp add b-d -- node "$PWD/dist/src/mcp.js"
+```
+
+Tools: `list_devices`, `wrap_text` (firmware line breaks with pixel widths), `preview_lens` (a PNG of the lens plus the lines to send).
+
+Previews only for now: a Mac can't hold a bonded link to Even G2, so sending to physical glasses will go through a phone app.
+
 ## Coming next
 
-- A browser lens simulator on [b-d.io](https://b-d.io)
-- An MCP server so an AI assistant can preview text on a lens (and, through the phone app, send it to your glasses)
+- Sending to real glasses through a phone app
 - More devices
 
 ## Contributing a device

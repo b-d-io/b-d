@@ -6,7 +6,8 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "bin": {
-    "b-d": "dist/src/cli.js"
+    "b-d": "dist/src/cli.js",
+    "b-d-mcp": "dist/src/mcp.js"
   },
   "files": [
     "dist"
@@ -31,7 +32,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@evenrealities/pretext": "^0.1.4",
-    "@resvg/resvg-js": "^2.6.2"
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@resvg/resvg-js": "^2.6.2",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
