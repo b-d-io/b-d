@@ -9,9 +9,10 @@
  *   list_devices  — supported glasses and their canvas
  *   wrap_text     — the lines the firmware makes of a text, with pixel widths
  *   preview_lens  — the lens as an image, plus the lines to send
- *
- * Sending to physical glasses needs a phone in between (a Mac can't hold a
- * bonded G2 link), so this server previews only.
+ *   send_to_glasses / clear_glasses — show text on real glasses, through a
+ *                   phone on the same Wi-Fi (Odasho › Remote lens). Set
+ *                   B_D_CODE to the phone's pairing code; B_D_PHONE=host:port
+ *                   skips Bonjour discovery.
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -19,6 +20,7 @@ import { z } from "zod";
 import { devices, lineCapacity, textWidth } from "./devices.js";
 import { renderSVG } from "./render.js";
 import { step, stream } from "./stream.js";
+import { clearPhone, findPhone, phoneStatus, sendToPhone } from "./phone.js";
 
 const server = new McpServer({ name: "b-d", version: "0.1.0" });
 const deviceIds = Object.keys(devices) as [string, ...string[]];
@@ -79,6 +81,60 @@ server.registerTool("preview_lens", {
       { type: "text", text: JSON.stringify({ device: d.name, shown, linesUsed: shown.length, capacity, scrolledOff: Math.max(0, lines.length - shown.length) }, null, 2) },
     ],
   };
+});
+
+function pairingCode(given: string | undefined): string {
+  const code = given ?? process.env.B_D_CODE;
+  if (!code) throw new Error("Pass the six-digit pairing code shown in Odasho › Glasses › Remote lens (or set B_D_CODE).");
+  return code;
+}
+
+const failure = (e: unknown) => ({ isError: true, content: [{ type: "text" as const, text: e instanceof Error ? e.message : String(e) }] });
+
+server.registerTool("send_to_glasses", {
+  title: "Show text on the glasses",
+  description: "Send captions to real smart glasses through a phone on the same Wi-Fi (Odasho with Remote lens on). The phone lays them out and scrolls them exactly as preview_lens shows. Preview first if the layout matters.",
+  inputSchema: {
+    captions: z.array(z.string().max(2000)).max(200).describe("Settled captions, oldest first"),
+    live: z.string().max(2000).default("").describe("Words still being spoken"),
+    code: z.string().regex(/^\d{6}$/).optional().describe("Pairing code shown on the phone; defaults to B_D_CODE"),
+  },
+}, async ({ captions, live, code }) => {
+  try {
+    const phone = await findPhone();
+    await sendToPhone(phone, pairingCode(code), captions, live);
+    return { content: [{ type: "text", text: `Sent ${captions.length} caption(s)${live ? " and live text" : ""} to ${phone.name ?? "the phone"} at ${phone.host}:${phone.port}.` }] };
+  } catch (e) {
+    return failure(e);
+  }
+});
+
+server.registerTool("clear_glasses", {
+  title: "Clear the glasses",
+  description: "Remove all text from the glasses (through the phone's Remote lens).",
+  inputSchema: { code: z.string().regex(/^\d{6}$/).optional() },
+}, async ({ code }) => {
+  try {
+    const phone = await findPhone();
+    await clearPhone(phone, pairingCode(code));
+    return { content: [{ type: "text", text: "Cleared." }] };
+  } catch (e) {
+    return failure(e);
+  }
+});
+
+server.registerTool("phone_status", {
+  title: "Check the phone link",
+  description: "Find the phone on this Wi-Fi and check that its Remote lens is answering. No pairing code needed.",
+  inputSchema: {},
+}, async () => {
+  try {
+    const phone = await findPhone();
+    const status = await phoneStatus(phone);
+    return { content: [{ type: "text", text: JSON.stringify({ phone, status }, null, 2) }] };
+  } catch (e) {
+    return failure(e);
+  }
 });
 
 await server.connect(new StdioServerTransport());

@@ -47,13 +47,27 @@ npm run build
 claude mcp add b-d -- node "$PWD/dist/src/mcp.js"
 ```
 
-Tools: `list_devices`, `wrap_text` (firmware line breaks with pixel widths), `preview_lens` (a PNG of the lens plus the lines to send).
+Tools: `list_devices`, `wrap_text` (firmware line breaks with pixel widths), `preview_lens` (a PNG of the lens plus the lines to send), and — to reach real glasses — `phone_status`, `send_to_glasses`, `clear_glasses`.
 
-Previews only for now: a Mac can't hold a bonded link to Even G2, so sending to physical glasses will go through a phone app.
+### Sending to real glasses
+
+A computer can't hold a bonded link to Even G2, so text goes through a phone on the same Wi-Fi that already has the glasses: [Odasho](https://odasho.ai/app.html) › Glasses › **Remote lens** (developer mode). The phone advertises `_b-d._tcp` over Bonjour and shows a six-digit pairing code.
+
+```bash
+claude mcp add b-d -e B_D_CODE=123456 -- node "$PWD/dist/src/mcp.js"
+# optional: -e B_D_PHONE=192.168.1.20:8787 to skip discovery
+```
+
+The phone's API is two calls, if you'd rather write your own client:
+
+```
+GET  http://PHONE:8787/status
+POST http://PHONE:8787/lens   {"code": "123456", "captions": ["…"], "live": "…"}
+POST http://PHONE:8787/lens   {"code": "123456", "clear": true}
+```
 
 ## Coming next
 
-- Sending to real glasses through a phone app
 - More devices
 
 ## Contributing a device

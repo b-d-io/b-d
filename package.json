@@ -34,6 +34,7 @@
     "@evenrealities/pretext": "^0.1.4",
     "@modelcontextprotocol/sdk": "^1.32.1",
     "@resvg/resvg-js": "^2.6.2",
+    "bonjour-service": "^1.4.4",
     "zod": "^4.6.5"
   },
   "devDependencies": {
